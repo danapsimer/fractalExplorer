@@ -1,0 +1,49 @@
+import {Action, createReducer, on} from '@ngrx/store';
+import * as FractalActions from './fractal.actions';
+import {Complex} from '../model/complex';
+
+export const fractalFeatureKey = 'fractal';
+
+export type FractalType = 'mandelbrot' | 'julia';
+
+export interface State {
+  center?: Complex;
+  C?: Complex;
+  scale?: number;
+  rx?: number;
+  ry?: number;
+  fractalType: FractalType;
+  uri: string;
+}
+
+export const initialState: State = {
+  fractalType: 'mandelbrot',
+  uri: '/fractal/mandelbrot'
+};
+
+const fractalReducer = createReducer(
+  initialState,
+
+  on(FractalActions.windowResized, (state, action) => {
+    return {...state, rx: action.rx, ry: action.ry};
+  }),
+  on(FractalActions.changeCenter, (state, action) => {
+    return {...state, center: action.center};
+  }),
+  on(FractalActions.changeC, (state, action) => {
+    return {...state, C: action.C};
+  }),
+  on(FractalActions.changeScale, (state, action) => {
+    return {...state, scale: action.scale};
+  }),
+  on(FractalActions.changeFractalType, (state, action) => {
+    return {...state, fractalType: action.fractalType};
+  }),
+  on(FractalActions.changeUri, (state, action) => {
+    return {...state, uri: action.uri};
+  }),
+);
+
+export function reducer(state: State | undefined, action: Action) {
+  return fractalReducer(state, action);
+}
