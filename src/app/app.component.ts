@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  template: `
+    <app-fractal-view></app-fractal-view>`,
+  styles: [``]
 })
 export class AppComponent {
-  title = 'FractalExplorer';
 }

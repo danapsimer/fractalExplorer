@@ -38,3 +38,14 @@ export const zoomIn = createAction(
   '[Fractal] Zoom In',
   props<{ factor: number, x: number, y: number }>(),
 );
+export const loadImage = createAction(
+  '[Fractal] Load Image'
+);
+export const loadImageSuccess = createAction(
+  '[Fractal] Load Image Success',
+  props<{ img: HTMLImageElement }>(),
+);
+export const loadImageFailure = createAction(
+  '[Fractal] Load Image Failure',
+  props<{ error: any }>(),
+);

@@ -16,11 +16,15 @@ export interface State {
   precision?: number;
   fractalType: FractalType;
   uri: string;
+  imageLoading: boolean;
+  imageLoadingError?: any;
+  img?: HTMLImageElement;
 }
 
 export const initialState: State = {
   fractalType: 'mandelbrot',
-  uri: '/fractal/mandelbrot'
+  uri: '/fractal/mandelbrot',
+  imageLoading: false,
 };
 
 const fractalReducer = createReducer(
@@ -52,6 +56,15 @@ const fractalReducer = createReducer(
   }),
   on(FractalActions.zoomIn, (state) => {
     return state;
+  }),
+  on(FractalActions.loadImage, (state) => {
+    return {...state, imageLoading: true};
+  }),
+  on(FractalActions.loadImageSuccess, (state, action) => {
+    return {...state, imageLoading: false, img: action.img};
+  }),
+  on(FractalActions.loadImageFailure, (state, action) => {
+    return {...state, imageLoading: false, imageLoadingError: action.error};
   }),
 );
 

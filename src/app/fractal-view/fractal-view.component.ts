@@ -1,15 +1,29 @@
 import {AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild} from '@angular/core';
 import {select, Store} from '@ngrx/store';
 import {State as FractalState} from '../fractal/fractal.reducer';
-import {selectFractalURI} from '../fractal/fractal.selectors';
+import {selectFractalImage, selectFractalURI} from '../fractal/fractal.selectors';
 import {Observable} from 'rxjs';
-import {concatMap, map, tap} from 'rxjs/operators';
+import {concatMap, map} from 'rxjs/operators';
 import {windowResized, zoomIn} from '../fractal/fractal.actions';
+import {ImageLoaderService} from '../image-loader/image-loader.service';
 
 @Component({
   selector: 'app-fractal-view',
-  templateUrl: './fractal-view.component.html',
-  styleUrls: ['./fractal-view.component.scss']
+  styles: [`
+    app-fractal-view {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      margin: 0;
+      padding: 0;
+    }`],
+  template: `
+    <canvas #fractalCanvas width="640" height="480" (click)="onClick($event)">
+      Sorry, your browser does not support HTML5 canvas element.
+    </canvas>
+  `
 })
 export class FractalViewComponent implements OnInit, AfterViewInit {
   @ViewChild('fractalCanvas', {static: true})
@@ -31,19 +45,12 @@ export class FractalViewComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.store.pipe(
-      select(selectFractalURI),
-      map(uri => 'http://localhost:8080' + uri),
-      concatMap(url => {
-        return new Observable(observer => {
-          const img = new Image();
-          img.onload = (event) => {
-            observer.next(img);
-            observer.complete();
-          };
-          img.src = url;
-        });
-      }),
-    ).subscribe(img => this.fillCanvas(img));
+      select(selectFractalImage),
+    ).subscribe(img => {
+      if (img) {
+        this.fillCanvas(img);
+      }
+    });
 
     const windowSize = {
       rx: window.innerWidth - 20,
@@ -56,7 +63,6 @@ export class FractalViewComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     const windowSize = {rx: event.target.innerWidth - 10, ry: event.target.innerHeight - 20};
-    console.log('windowSize = ' + JSON.stringify(windowSize));
     this.store.dispatch(windowResized(windowSize));
   }
 

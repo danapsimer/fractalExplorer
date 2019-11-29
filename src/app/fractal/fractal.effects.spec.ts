@@ -1,10 +1,11 @@
-import {TestBed} from '@angular/core/testing';
+import {async, TestBed} from '@angular/core/testing';
 import {provideMockActions} from '@ngrx/effects/testing';
-import {Observable} from 'rxjs';
 import {MockStore, provideMockStore} from '@ngrx/store/testing';
 import {MemoizedSelector} from '@ngrx/store/src/selector';
 import {Action, Store} from '@ngrx/store';
-import {getTestScheduler} from 'jasmine-marbles';
+
+import {Observable, of, throwError} from 'rxjs';
+import {TestScheduler} from 'rxjs/testing';
 
 import {FractalEffects} from './fractal.effects';
 import {selectFractalState} from './fractal.selectors';
@@ -15,22 +16,24 @@ import {
   changeMaxIter,
   changePrecision,
   changeScale,
-  changeUri,
+  changeUri, loadImage, loadImageFailure, loadImageSuccess,
   windowResized,
   zoomIn
 } from './fractal.actions';
 import * as fromFractal from './fractal.reducer';
 import * as fromRoot from '../reducers';
-import {TestScheduler} from 'rxjs/testing';
+import {getTestScheduler} from 'jasmine-marbles';
+import {ImageLoaderService} from '../image-loader/image-loader.service';
 
 describe('FractalEffects', () => {
   let actions$: Observable<Action>;
   let effects: FractalEffects;
   let mockStore: MockStore<fromFractal.State>;
   let mockSelectFractalState: MemoizedSelector<fromRoot.State, fromFractal.State>;
+  let mockImageLoaderService: ImageLoaderService;
   let testScheduler: TestScheduler;
 
-  beforeEach(() => {
+  beforeEach(async(() => {
     TestBed.configureTestingModule({
       providers: [
         provideMockActions(() => actions$),
@@ -41,12 +44,19 @@ describe('FractalEffects', () => {
           }
         }),
         {provide: TestScheduler, useFactory: getTestScheduler},
+        {
+          provide: ImageLoaderService, useValue: {loadImage$: (uri) => null},
+        },
         FractalEffects,
       ]
-    });
+    }).compileComponents();
+  }));
+
+  beforeEach(() => {
     mockStore = TestBed.get(Store);
     mockSelectFractalState = mockStore.overrideSelector(selectFractalState, fromFractal.initialState);
     testScheduler = TestBed.get(TestScheduler);
+    mockImageLoaderService = TestBed.get(ImageLoaderService);
     effects = TestBed.get<FractalEffects>(FractalEffects);
   });
 
@@ -209,6 +219,40 @@ describe('FractalEffects', () => {
         expectObservable(effects.zoomIn$).toBe('-(yz)', {
           y: changeScale({scale: 2.5}),
           z: changeCenter({center: {r: -1.25, i: -1.25}}),
+        });
+      });
+    });
+  });
+
+  describe('Image Load Actions', () => {
+    it('should load an image and issue success action', () => {
+      testScheduler.run(({hot, expectObservable}) => {
+        mockSelectFractalState.setResult({
+          ...fromFractal.initialState,
+          imageLoading: true,
+        });
+        const dummyImageElement = document.createElement('img');
+        return spyOn(mockImageLoaderService, 'loadImage$').and.returnValue(of(dummyImageElement));
+        actions$ = hot('-a', {
+          a: loadImage()
+        });
+        expectObservable(effects.loadImage$).toBe('-z', {
+          z: loadImageSuccess({img: dummyImageElement})
+        });
+      });
+    });
+    it('should try to load an image and issue failure action', () => {
+      testScheduler.run(({hot, expectObservable}) => {
+        mockSelectFractalState.setResult({
+          ...fromFractal.initialState,
+          imageLoading: true,
+        });
+        return spyOn(mockImageLoaderService, 'loadImage$').and.returnValue(throwError('an error occurred'));
+        actions$ = hot('-a', {
+          a: loadImage()
+        });
+        expectObservable(effects.loadImage$).toBe('-z', {
+          z: loadImageFailure({error: 'an error occurred'})
         });
       });
     });

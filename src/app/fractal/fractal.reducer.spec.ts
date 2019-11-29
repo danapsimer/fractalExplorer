@@ -1,5 +1,14 @@
 import {reducer, initialState} from './fractal.reducer';
-import {changeC, changeCenter, changeFractalType, changeMaxIter, changePrecision, changeScale, changeUri} from './fractal.actions';
+import {
+  changeC,
+  changeCenter,
+  changeFractalType,
+  changeMaxIter,
+  changePrecision,
+  changeScale,
+  changeUri,
+  loadImage, loadImageFailure, loadImageSuccess
+} from './fractal.actions';
 
 describe('Fractal Reducer', () => {
   describe('an unknown action', () => {
@@ -72,6 +81,30 @@ describe('Fractal Reducer', () => {
       const result = reducer(initialState, action);
 
       expect(result).toEqual({...initialState, uri: '/fractal/julia'});
+    });
+  });
+  describe('Image Loading', () => {
+    it('loadImage should toggle imageLoading on.', () => {
+      const action = loadImage();
+
+      const result = reducer(initialState, action);
+
+      expect(result).toEqual({...initialState, imageLoading: true});
+    });
+    it('loadImageSuccess should toggle imageLoading off and set img.', () => {
+      const dummyElement = document.createElement('img');
+      const action = loadImageSuccess({img: dummyElement});
+
+      const result = reducer(initialState, action);
+
+      expect(result).toEqual({...initialState, imageLoading: false, img: dummyElement});
+    });
+    it('loadImageSuccess should toggle imageLoading off and set imageLoadingError.', () => {
+      const action = loadImageFailure({error: 'an error occurred'});
+
+      const result = reducer(initialState, action);
+
+      expect(result).toEqual({...initialState, imageLoading: false, imageLoadingError: 'an error occurred'});
     });
   });
 });

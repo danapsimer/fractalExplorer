@@ -2,13 +2,14 @@ import {Injectable} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {select, Store} from '@ngrx/store';
-import {debounceTime, flatMap, map, throttleTime, withLatestFrom} from 'rxjs/operators';
-import {from} from 'rxjs';
+import {catchError, debounceTime, flatMap, map, mergeMap, throttleTime, withLatestFrom} from 'rxjs/operators';
+import {from, of} from 'rxjs';
 
 import * as FractalActions from './fractal.actions';
-import {changeCenter, changeScale} from './fractal.actions';
+import {changeCenter, changeScale, loadImage, loadImageFailure, loadImageSuccess} from './fractal.actions';
 import {State} from './fractal.reducer';
-import {selectFractalState} from './fractal.selectors';
+import {selectFractalState, selectFractalURI} from './fractal.selectors';
+import {ImageLoaderService} from '../image-loader/image-loader.service';
 
 
 @Injectable()
@@ -61,6 +62,16 @@ export class FractalEffects {
     );
   });
 
+  loadImage$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(loadImage),
+      withLatestFrom(this.store.pipe(select(selectFractalURI))),
+      mergeMap(([_, uri]) => this.imageLoader.loadImage$(uri)),
+      map(img => loadImageSuccess({img})),
+      catchError(error => of(loadImageFailure({error})))
+    );
+  });
+
   buildUri(state: State): string {
     let params = new HttpParams();
     if (state.center) {
@@ -91,7 +102,8 @@ export class FractalEffects {
       : '');
   }
 
-  constructor(private actions$: Actions, private store: Store<State>) {
+
+  constructor(private actions$: Actions, private store: Store<State>, private imageLoader: ImageLoaderService) {
   }
 
 }
