@@ -1,19 +1,45 @@
 import {Injectable} from '@angular/core';
+import {HttpParams} from '@angular/common/http';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
-
-import {concatMap, debounce, map, take} from 'rxjs/operators';
+import {select, Store} from '@ngrx/store';
+import {debounceTime, flatMap, map, throttleTime, withLatestFrom} from 'rxjs/operators';
+import {from} from 'rxjs';
 
 import * as FractalActions from './fractal.actions';
+import {changeCenter, changeScale} from './fractal.actions';
 import {State} from './fractal.reducer';
-import {select, Store} from '@ngrx/store';
 import {selectFractalState} from './fractal.selectors';
-import {HttpParams} from '@angular/common/http';
-import {interval} from 'rxjs';
 
 
 @Injectable()
 export class FractalEffects {
 
+  zoomIn$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(FractalActions.zoomIn),
+      throttleTime(2000),
+      withLatestFrom(this.store.pipe(select(selectFractalState))),
+      map(([action, state]) => {
+        const rx = state.rx ? state.rx : 640;
+        const ry = state.ry ? state.ry : 480;
+        const scale = state.scale ? state.scale : 5.0;
+        const center = state.center ? state.center : {r: 0, i: 0};
+        const ps = (rx >= ry) ? scale / rx : scale / ry;
+        const roffset = ps * (action.x - (rx / 2));
+        const ioffset = ps * ((ry - action.y) - (ry / 2));
+        return {
+          scale: scale * action.factor,
+          center: {r: center.r + roffset, i: center.i + ioffset}
+        };
+      }),
+      flatMap(({scale, center}) =>
+        from([
+          changeScale({scale}),
+          changeCenter({center})
+        ])
+      )
+    );
+  });
 
   updateFractalUri$ = createEffect(() => {
     return this.actions$.pipe(
@@ -21,19 +47,17 @@ export class FractalEffects {
         FractalActions.changeScale,
         FractalActions.changeC,
         FractalActions.changeFractalType,
-        FractalActions.windowResized),
-      debounce(() => interval(500)),
-      concatMap((action) =>
-        this.store.pipe(
-          select(selectFractalState),
-          take(1),
-          map(this.buildUri),
-          map(uri => {
-            return {uri};
-          }),
-          map(FractalActions.changeUri)
-        )
-      )
+        FractalActions.windowResized,
+        FractalActions.changeMaxIter,
+        FractalActions.changePrecision),
+      debounceTime(500),
+      withLatestFrom(this.store.pipe(select(selectFractalState))),
+      map(([_, state]) => state),
+      map(this.buildUri),
+      map(uri => {
+        return {uri};
+      }),
+      map(FractalActions.changeUri)
     );
   });
 
@@ -54,7 +78,17 @@ export class FractalEffects {
     if (state.ry) {
       params = params.append('ry', '' + state.ry);
     }
-    return '/fractal/' + state.fractalType + (params.keys().length > 0 ? '?' + params.toString() : '');
+    if (state.maxIter) {
+      params = params.append('maxIter', '' + state.maxIter);
+    }
+    if (state.precision) {
+      params = params.append('precision', '' + state.precision);
+    }
+    const query = params.toString().replace(/\+/g, '%2B');
+
+    return '/fractal/' + state.fractalType + (params.keys().length > 0
+      ? '?' + query
+      : '');
   }
 
   constructor(private actions$: Actions, private store: Store<State>) {

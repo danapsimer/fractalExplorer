@@ -1,5 +1,5 @@
 import {reducer, initialState} from './fractal.reducer';
-import {changeC, changeCenter, changeFractalType, changeScale, changeUri} from './fractal.actions';
+import {changeC, changeCenter, changeFractalType, changeMaxIter, changePrecision, changeScale, changeUri} from './fractal.actions';
 
 describe('Fractal Reducer', () => {
   describe('an unknown action', () => {
@@ -36,6 +36,24 @@ describe('Fractal Reducer', () => {
       const result = reducer(initialState, action);
 
       expect(result).toEqual({...initialState, scale: 1.0});
+    });
+  });
+  describe('change MaxIter', () => {
+    it('should return the updated State', () => {
+      const action = changeMaxIter({maxIter: 100});
+
+      const result = reducer(initialState, action);
+
+      expect(result).toEqual({...initialState, maxIter: 100});
+    });
+  });
+  describe('change Precision', () => {
+    it('should return the updated State', () => {
+      const action = changePrecision({precision: 256});
+
+      const result = reducer(initialState, action);
+
+      expect(result).toEqual({...initialState, precision: 256});
     });
   });
   describe('change FractalType', () => {

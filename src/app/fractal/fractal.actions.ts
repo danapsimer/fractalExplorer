@@ -18,12 +18,23 @@ export const changeC = createAction(
   '[Fractal] Change C',
   props<{ C: Complex }>(),
 );
+export const changeMaxIter = createAction(
+  '[Fractal] Change Max Iterations',
+  props<{ maxIter: number }>(),
+);
+export const changePrecision = createAction(
+  '[Fractal] Change Precision',
+  props<{ precision: number }>(),
+);
 export const windowResized = createAction(
   '[Fractal] Window Resized',
-  props<{ rx: number, ry: number}>(),
+  props<{ rx: number, ry: number }>(),
 );
 export const changeUri = createAction(
   '[Fractal] Change Uri',
   props<{ uri: string }>(),
 );
-
+export const zoomIn = createAction(
+  '[Fractal] Zoom In',
+  props<{ factor: number, x: number, y: number }>(),
+);

@@ -12,6 +12,8 @@ export interface State {
   scale?: number;
   rx?: number;
   ry?: number;
+  maxIter?: number;
+  precision?: number;
   fractalType: FractalType;
   uri: string;
 }
@@ -36,11 +38,20 @@ const fractalReducer = createReducer(
   on(FractalActions.changeScale, (state, action) => {
     return {...state, scale: action.scale};
   }),
+  on(FractalActions.changeMaxIter, (state, action) => {
+    return {...state, maxIter: action.maxIter};
+  }),
+  on(FractalActions.changePrecision, (state, action) => {
+    return {...state, precision: action.precision};
+  }),
   on(FractalActions.changeFractalType, (state, action) => {
     return {...state, fractalType: action.fractalType};
   }),
   on(FractalActions.changeUri, (state, action) => {
     return {...state, uri: action.uri};
+  }),
+  on(FractalActions.zoomIn, (state) => {
+    return state;
   }),
 );
 

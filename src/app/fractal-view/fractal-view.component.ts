@@ -4,7 +4,7 @@ import {State as FractalState} from '../fractal/fractal.reducer';
 import {selectFractalURI} from '../fractal/fractal.selectors';
 import {Observable} from 'rxjs';
 import {concatMap, map, tap} from 'rxjs/operators';
-import {windowResized} from '../fractal/fractal.actions';
+import {windowResized, zoomIn} from '../fractal/fractal.actions';
 
 @Component({
   selector: 'app-fractal-view',
@@ -49,7 +49,7 @@ export class FractalViewComponent implements OnInit, AfterViewInit {
       rx: window.innerWidth - 20,
       ry: window.innerHeight - 20
     };
-    console.log('initial windowSize = ',JSON.stringify(windowSize));
+    console.log('initial windowSize = ', JSON.stringify(windowSize));
     this.store.dispatch(windowResized(windowSize));
   }
 
@@ -58,5 +58,13 @@ export class FractalViewComponent implements OnInit, AfterViewInit {
     const windowSize = {rx: event.target.innerWidth - 10, ry: event.target.innerHeight - 20};
     console.log('windowSize = ' + JSON.stringify(windowSize));
     this.store.dispatch(windowResized(windowSize));
+  }
+
+  onClick(event) {
+    const rect = this.canvasRef.nativeElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    this.store.dispatch(zoomIn({factor: 0.5, x, y}));
   }
 }
