@@ -15,6 +15,10 @@ export class ImageLoaderService {
         observer.next(img);
         observer.complete();
       };
+      img.onerror = (error) => {
+        observer.error(error);
+        observer.complete();
+      };
       img.src = url;
     });
   }

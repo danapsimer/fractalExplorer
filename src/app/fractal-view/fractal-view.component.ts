@@ -34,36 +34,23 @@ export class FractalViewComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.ctx = this.canvasRef.nativeElement.getContext('2d');
-  }
-
-  private fillCanvas(img) {
-    this.canvasRef.nativeElement.width = img.width;
-    this.canvasRef.nativeElement.height = img.height;
-    this.ctx.drawImage(img, 0, 0);       // DRAW THE IMAGE TO THE CANVAS.
   }
 
   ngAfterViewInit(): void {
+    this.ctx = this.canvasRef.nativeElement.getContext('2d');
     this.store.pipe(
       select(selectFractalImage),
     ).subscribe(img => {
       if (img) {
-        this.fillCanvas(img);
+        setTimeout( () => this.fillCanvas(img), 1);
       }
     });
-
-    const windowSize = {
-      rx: window.innerWidth - 20,
-      ry: window.innerHeight - 20
-    };
-    console.log('initial windowSize = ', JSON.stringify(windowSize));
-    this.store.dispatch(windowResized(windowSize));
+    this.dispatchWindowSize();
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-    const windowSize = {rx: event.target.innerWidth - 10, ry: event.target.innerHeight - 20};
-    this.store.dispatch(windowResized(windowSize));
+    this.dispatchWindowSize();
   }
 
   onClick(event) {
@@ -72,5 +59,19 @@ export class FractalViewComponent implements OnInit, AfterViewInit {
     const y = event.clientY - rect.top;
 
     this.store.dispatch(zoomIn({factor: 0.5, x, y}));
+  }
+
+  private fillCanvas(img) {
+    this.canvasRef.nativeElement.width = img.width;
+    this.canvasRef.nativeElement.height = img.height;
+    this.ctx.drawImage(img, 0, 0);       // DRAW THE IMAGE TO THE CANVAS.
+  }
+
+  private dispatchWindowSize() {
+    const windowSize = {
+      rx: window.innerWidth - 20,
+      ry: window.innerHeight - 20
+    };
+    this.store.dispatch(windowResized(windowSize));
   }
 }

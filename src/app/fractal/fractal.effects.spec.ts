@@ -258,4 +258,22 @@ describe('FractalEffects', () => {
     });
   });
 
+  describe('Change Uri Action', () => {
+    it('should throttle and send loadImage', () => {
+      testScheduler.run(({hot, expectObservable}) => {
+        mockSelectFractalState.setResult({
+          ...fromFractal.initialState,
+        });
+        actions$ = hot('-a---b 2000ms c', {
+          a: changeUri({uri: '/fractal/mandelbrot'}),
+          b: changeUri({uri: '/fractal/mandelbrot?s=3.0'}),
+          c: changeUri({uri: '/fractal/mandelbrot?s=3.0&center=1.5+0.5i'}),
+        });
+        expectObservable(effects.loadImage$).toBe('-z 2000ms y', {
+          z: loadImage(),
+          y: loadImage(),
+        });
+      });
+    });
+  });
 });

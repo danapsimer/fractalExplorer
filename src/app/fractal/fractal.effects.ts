@@ -6,7 +6,7 @@ import {catchError, debounceTime, flatMap, map, mergeMap, throttleTime, withLate
 import {from, of} from 'rxjs';
 
 import * as FractalActions from './fractal.actions';
-import {changeCenter, changeScale, loadImage, loadImageFailure, loadImageSuccess} from './fractal.actions';
+import {changeCenter, changeScale, changeUri, loadImage, loadImageFailure, loadImageSuccess} from './fractal.actions';
 import {State} from './fractal.reducer';
 import {selectFractalState, selectFractalURI} from './fractal.selectors';
 import {ImageLoaderService} from '../image-loader/image-loader.service';
@@ -62,11 +62,19 @@ export class FractalEffects {
     );
   });
 
+  changedUri$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(changeUri),
+      throttleTime(2000),
+      map(action => loadImage())
+    );
+  });
+
   loadImage$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(loadImage),
       withLatestFrom(this.store.pipe(select(selectFractalURI))),
-      mergeMap(([_, uri]) => this.imageLoader.loadImage$(uri)),
+      mergeMap(([_, uri]) => this.imageLoader.loadImage$('http://localhost:8080' + uri)),
       map(img => loadImageSuccess({img})),
       catchError(error => of(loadImageFailure({error})))
     );

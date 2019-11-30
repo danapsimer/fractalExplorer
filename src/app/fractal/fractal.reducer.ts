@@ -57,7 +57,7 @@ const fractalReducer = createReducer(
   on(FractalActions.zoomIn, (state) => {
     return state;
   }),
-  on(FractalActions.loadImage, (state) => {
+  on(FractalActions.loadImage, (state, action) => {
     return {...state, imageLoading: true};
   }),
   on(FractalActions.loadImageSuccess, (state, action) => {
