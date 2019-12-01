@@ -10,6 +10,7 @@ import {environment} from '../environments/environment';
 import {FractalViewComponent} from './fractal-view/fractal-view.component';
 import {FractalModule} from './fractal/fractal.module';
 import {EffectsModule} from '@ngrx/effects';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import {EffectsModule} from '@ngrx/effects';
     }),
     EffectsModule.forRoot([]),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
-    FractalModule
+    FractalModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -40,7 +40,6 @@ describe('FractalViewComponent', () => {
     const dummyImageElement = document.createElement('img');
     mockSelectFractalState.setResult({
       ...fromFractal.initialState,
-      img: dummyImageElement,
     });
     expect(component).toBeTruthy();
   });
