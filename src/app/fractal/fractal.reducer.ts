@@ -15,15 +15,13 @@ export interface State {
   maxIter?: number;
   precision?: number;
   fractalType: FractalType;
-  uri: string;
+  uri?: string;
   imageLoading: boolean;
   imageLoadingError?: any;
-  img?: HTMLImageElement;
 }
 
 export const initialState: State = {
   fractalType: 'mandelbrot',
-  uri: '/fractal/mandelbrot',
   imageLoading: false,
 };
 
@@ -61,7 +59,7 @@ const fractalReducer = createReducer(
     return {...state, imageLoading: true};
   }),
   on(FractalActions.loadImageSuccess, (state, action) => {
-    return {...state, imageLoading: false, img: action.img};
+    return {...state, imageLoading: false};
   }),
   on(FractalActions.loadImageFailure, (state, action) => {
     return {...state, imageLoading: false, imageLoadingError: action.error};

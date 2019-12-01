@@ -62,24 +62,6 @@ export class FractalEffects {
     );
   });
 
-  changedUri$ = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(changeUri),
-      throttleTime(2000),
-      map(action => loadImage())
-    );
-  });
-
-  loadImage$ = createEffect(() => {
-    return this.actions$.pipe(
-      ofType(loadImage),
-      withLatestFrom(this.store.pipe(select(selectFractalURI))),
-      mergeMap(([_, uri]) => this.imageLoader.loadImage$('http://localhost:8080' + uri)),
-      map(img => loadImageSuccess({img})),
-      catchError(error => of(loadImageFailure({error})))
-    );
-  });
-
   buildUri(state: State): string {
     let params = new HttpParams();
     if (state.center) {

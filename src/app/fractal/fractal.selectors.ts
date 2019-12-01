@@ -11,6 +11,5 @@ export const selectFractalURI = createSelector(
   (state: State) => state.uri
 );
 
-export const selectFractalImage = createSelector(selectFractalState, (state: State) => state.img);
 export const selectFractalImageLoading = createSelector(selectFractalState, (state: State) => state.imageLoading);
 export const selectFractalImageLoadingError = createSelector(selectFractalState, (state: State) => state.imageLoadingError);

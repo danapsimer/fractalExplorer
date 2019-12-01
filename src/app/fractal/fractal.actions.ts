@@ -43,7 +43,6 @@ export const loadImage = createAction(
 );
 export const loadImageSuccess = createAction(
   '[Fractal] Load Image Success',
-  props<{ img: HTMLImageElement }>(),
 );
 export const loadImageFailure = createAction(
   '[Fractal] Load Image Failure',

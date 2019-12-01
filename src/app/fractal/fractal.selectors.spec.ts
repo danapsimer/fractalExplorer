@@ -1,6 +1,5 @@
 import * as fromFractal from './fractal.reducer';
 import {
-  selectFractalImage,
   selectFractalImageLoading,
   selectFractalImageLoadingError,
   selectFractalState,
@@ -36,13 +35,5 @@ describe('Fractal Selectors', () => {
     });
 
     expect(result).toEqual('an error occurred');
-  });
-  it('should select the fractal image state', () => {
-    const dummyElement = document.createElement('img');
-    const result = selectFractalImage({
-      [fromFractal.fractalFeatureKey]: {...initialState, img: dummyElement}
-    });
-
-    expect(result).toBe(dummyElement);
   });
 });
