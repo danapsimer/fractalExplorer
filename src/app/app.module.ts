@@ -10,16 +10,25 @@ import {environment} from '../environments/environment';
 import {FractalViewComponent} from './fractal-view/fractal-view.component';
 import {FractalModule} from './fractal/fractal.module';
 import {EffectsModule} from '@ngrx/effects';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MaterialModule} from './material/material.module';
+import { FractalParametersFormComponent } from './fractal-parameters-form/fractal-parameters-form.component';
+import {ReactiveFormsModule} from '@angular/forms';
+import {MatFormFieldModule, MatInputModule, MatSliderModule} from '@angular/material';
+import { ComplexEditorComponent } from './complex-editor/complex-editor.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    FractalViewComponent
+    FractalViewComponent,
+    FractalParametersFormComponent,
+    ComplexEditorComponent
   ],
   imports: [
     BrowserModule,
+    MaterialModule,
     AppRoutingModule,
+    ReactiveFormsModule,
     StoreModule.forRoot(reducers, {
       metaReducers,
       runtimeChecks: {
@@ -30,7 +39,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     EffectsModule.forRoot([]),
     !environment.production ? StoreDevtoolsModule.instrument() : [],
     FractalModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
